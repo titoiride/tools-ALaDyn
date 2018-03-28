@@ -577,6 +577,10 @@ def data(path,label,n_dimensions):
          xenv=[]
          global yenv
          yenv=[]
+         global zenv
+         zenv=[]
+         global rhofluid
+         rhofluid=[]
 
     if(label=='pic'):
         global Expic
@@ -593,6 +597,8 @@ def data(path,label,n_dimensions):
         xpic=[]
         global ypic
         ypic=[]
+        global zpic
+        zpic=[]
 
     if(n_dimensions==2):
         for i in path:
@@ -615,6 +621,9 @@ def data(path,label,n_dimensions):
                 if(os.isfile(os.join(i,'Edenout'+i[-2:]+'.bin'))):
                     print 'Now reading Edenout',i[-2:]
                     rhoenv.append(read_ALaDyn_bin(i,'Edenout'+i[-2:],'nogrid'))
+                if(os.isfile(os.join(i,'Fdenout'+i[-2:]+'.bin'))):
+                    print 'Now reading Fdenout',i[-2:]
+                    rhofluid.append(read_ALaDyn_bin(i,'Edenout'+i[-2:],'nogrid'))
                 if(os.isfile(os.join(i,'Bzfout'+i[-2:]+'.bin'))):
                     print 'Now reading Bzfout',i[-2:]
                     Bzenv.append(read_ALaDyn_bin(i,'Bzfout'+i[-2:],'nogrid'))
@@ -640,6 +649,58 @@ def data(path,label,n_dimensions):
                 if(os.isfile(os.join(i,'Elenout'+i[-2:]+'.bin'))):
                     print 'Now reading Elenout',i[-2:]
                     enerpic.append(read_ALaDyn_bin(i,'Elenout'+i[-2:],'nogrid'))
+    if(n_dimensions==3):
+        for i in path:
+            if(label=='env'):
+                if(os.isfile(os.join(i,'Exfout'+i[-2:]+'.bin'))):
+                    print 'Now reading Exfout',i[-2:]
+                    temp,tempx,tempy,tempz=read_ALaDyn_bin(i,'Exfout'+i[-2:],'grid')
+                    Exenv.append(temp)
+                    xenv.append(tempx)
+                    yenv.append(tempy)
+                    zenv.append(tempz)
+                if(os.isfile(os.join(i,'Aenvout'+i[-2:]+'.bin'))):
+                    print 'Now reading Aenvout',i[-2:]
+                    A.append(read_ALaDyn_bin(i,'Aenvout'+i[-2:],'nogrid'))
+                if(os.isfile(os.join(i,'Renvout'+i[-2:]+'.bin'))):
+                    print 'Now reading Aenvout',i[-2:]
+                    A.append(get_a(i,i[-2:],'nogrid'))
+                if(os.isfile(os.join(i,'Eyfout'+i[-2:]+'.bin'))):
+                    print 'Now reading Eyfout',i[-2:]
+                    Eyenv.append(read_ALaDyn_bin(i,'Eyfout'+i[-2:],'nogrid'))
+                if(os.isfile(os.join(i,'Edenout'+i[-2:]+'.bin'))):
+                    print 'Now reading Edenout',i[-2:]
+                    rhoenv.append(read_ALaDyn_bin(i,'Edenout'+i[-2:],'nogrid'))
+                if(os.isfile(os.join(i,'Fdenout'+i[-2:]+'.bin'))):
+                    print 'Now reading Fdenout',i[-2:]
+                    rhofluid.append(read_ALaDyn_bin(i,'Edenout'+i[-2:],'nogrid'))
+                if(os.isfile(os.join(i,'Bzfout'+i[-2:]+'.bin'))):
+                    print 'Now reading Bzfout',i[-2:]
+                    Bzenv.append(read_ALaDyn_bin(i,'Bzfout'+i[-2:],'nogrid'))
+                if(os.isfile(os.join(i,'Elenout'+i[-2:]+'.bin'))):
+                    print 'Now reading Elenout',i[-2:]
+                    enerenv.append(read_ALaDyn_bin(i,'Elenout'+i[-2:],'nogrid'))
+            if(label=='pic'):
+                if(os.isfile(os.join(i,'Exfout'+i[-2:]+'.bin'))):
+                    print 'Now reading Exfout',i[-2:]
+                    temp,tempx,tempy,tempz=read_ALaDyn_bin(i,'Exfout'+i[-2:],'grid')
+                    Expic.append(temp)
+                    xpic.append(tempx)
+                    ypic.append(tempy)
+                    zpic.append(tempz)
+                if(os.isfile(os.join(i,'Eyfout'+i[-2:]+'.bin'))):
+                    print 'Now reading Eyfout',i[-2:]
+                    Eypic.append(read_ALaDyn_bin(i,'Eyfout'+i[-2:],'nogrid'))
+                if(os.isfile(os.join(i,'Edenout'+i[-2:]+'.bin'))):
+                    print 'Now reading Edenout',i[-2:]
+                    rhopic.append(read_ALaDyn_bin(i,'Edenout'+i[-2:],'nogrid'))
+                if(os.isfile(os.join(i,'Bzfout'+i[-2:]+'.bin'))):
+                    print 'Now reading Bzfout',i[-2:]
+                    Bzpic.append(read_ALaDyn_bin(i,'Bzfout'+i[-2:],'nogrid'))
+                if(os.isfile(os.join(i,'Elenout'+i[-2:]+'.bin'))):
+                    print 'Now reading Elenout',i[-2:]
+                    enerpic.append(read_ALaDyn_bin(i,'Elenout'+i[-2:],'nogrid'))
+
 
 def temporal_average(gamma,time,lambda_0,n):
 
