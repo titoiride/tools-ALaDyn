@@ -13,7 +13,7 @@ import array
 
 def read_diagnostic(folder_name,diag_number):
     path=os.path.join(folder_name,'diagnostics','diag'+str(diag_number).zfill(2))
-    file_read=(path+'.dat','r')
+    file_read=open(path+'.dat','r')
 
     lines=file_read.readlines()
     number_of_outputs=int(lines[19].split()[1])
