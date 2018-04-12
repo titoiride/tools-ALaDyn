@@ -11,7 +11,20 @@ from cpython cimport array
 from ctypes import *
 import array
 
+def read_diagnostic(folder_name,diag_number):
+    path=os.path.join(folder_name,'diagnostics',diag+str(diag_number).zfill(2))
+    file_read=(path+'.dat','r')
 
+    lines=file_read.readlines()
+    number_of_outputs=int(lines[19].split()[1])
+    time=np.zeros(number_of_outputs)
+    centroid=np.zeros(number_of_outputs)
+
+    for i in range(number_of_outputs):
+        time[i]=float(lines[22+i/5].split()[i%5])
+        centroid[i]=float(lines[22+number_of_outputs/5+1+3+2*number_of_outputs+2+i].split()[1])
+
+    return (time,centroid)
 def get_path(directory):
     path=os.path.join(os.getcwd(),directory)
 
