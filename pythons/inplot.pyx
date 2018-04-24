@@ -59,7 +59,7 @@ def read_ALaDyn_bin(dir_path,file_name,grid_no_grid):
     path     = os.path.join(os.path.join(dir_path,file_name+'.bin'))
     f        = open(str(path),'rb')
     path     = c_char_p(os.path.join(os.path.join(dir_path,file_name+'.bin')))
-    cpath='/home/HPC/terzani/Pic/tools-ALaDyn/pythons'
+    cpath=os.path.join(os.environ["HOME"],'Pic/forked_tools-ALaDyn/pythons')
     read_bin= CDLL(cpath+'/read_binary.so')
     #- vector length -#
     struct.unpack('i', f.read(4))
