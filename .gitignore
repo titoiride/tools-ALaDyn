@@ -47,6 +47,9 @@ Desktop.ini
 *.x86_64
 *.hex
 
+# Cythons
+
+inplot.c
 
 # QtCreator
 *.autosave
