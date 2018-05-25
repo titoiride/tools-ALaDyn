@@ -49,7 +49,7 @@ Desktop.ini
 
 # Cythons
 
-pythons/inplot.c
+*inplot.c
 
 # QtCreator
 *.autosave
