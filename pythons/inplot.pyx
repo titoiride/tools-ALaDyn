@@ -657,7 +657,7 @@ def data(path,label,n_dimensions):
                 enerenv.append(read_ALaDyn_bin(i,'Elenout'+i[-2:],'nogrid'))
             if(os.isfile(os.join(i,'Wakepot'+i[-2:]+'.bin'))):
                 print 'Now reading Wakepot',i[-2:]
-                enerenv.append(read_ALaDyn_bin(i,'Elenout'+i[-2:],'nogrid'))
+                wakepotenv.append(read_ALaDyn_bin(i,'Elenout'+i[-2:],'nogrid'))
         if(label=='pic'):
             if(n_dimensions==2):
                 if(os.isfile(os.join(i,'Exfout'+i[-2:]+'.bin'))):
@@ -688,7 +688,7 @@ def data(path,label,n_dimensions):
                 enerpic.append(read_ALaDyn_bin(i,'Elenout'+i[-2:],'nogrid'))
             if(os.isfile(os.join(i,'Wakepot'+i[-2:]+'.bin'))):
                 print 'Now reading Wakepot',i[-2:]
-                enerenv.append(read_ALaDyn_bin(i,'Elenout'+i[-2:],'nogrid'))
+                wakepotpic.append(read_ALaDyn_bin(i,'Elenout'+i[-2:],'nogrid'))
 
 
 def temporal_average(gamma,time,lambda_0,n):
