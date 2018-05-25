@@ -648,7 +648,7 @@ def data(path,label,n_dimensions):
                 rhoenv.append(read_ALaDyn_bin(i,'Edenout'+i[-2:],'nogrid'))
             if(os.isfile(os.join(i,'Fdenout'+i[-2:]+'.bin'))):
                 print 'Now reading Fdenout',i[-2:]
-                rhofluid.append(read_ALaDyn_bin(i,'Edenout'+i[-2:],'nogrid'))
+                rhofluid.append(read_ALaDyn_bin(i,'Fdenout'+i[-2:],'nogrid'))
             if(os.isfile(os.join(i,'Bzfout'+i[-2:]+'.bin'))):
                 print 'Now reading Bzfout',i[-2:]
                 Bzenv.append(read_ALaDyn_bin(i,'Bzfout'+i[-2:],'nogrid'))
