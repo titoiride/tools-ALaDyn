@@ -19,7 +19,7 @@ def read_diagnostic(folder_name,diag_number):
     number_of_outputs=int(lines[19].split()[1])
     time=np.zeros(number_of_outputs)
     centroid=np.zeros(number_of_outputs)
-    ibeam=lines[1].split()[4]
+    ibeam=int(lines[1].split()[4])
     if(ibeam==0):
         offset=22+(number_of_outputs-1)/5+4+2*number_of_outputs+1+2+2*number_of_outputs+1+2
     if(ibeam==2):
