@@ -11,7 +11,42 @@ from cpython cimport array
 from ctypes import *
 import array
 
-def read_diagnostic(folder_name,diag_number):
+def compute_centroid(dir_path):
+    
+    file_path=os.path.join(dir_path,'Eyfout'+dir_path[-2:])
+    file_name='Eyfout'+dir_path[-2:]
+    if(not os.path.isfile(file_path+'.bin')):
+        print file_name+' doesnt exist. Please check input parameters'
+        return
+
+    print 'Computing centroid of '+file_name
+
+    A=read_ALaDyn_bin(dir_path,file_name,'grid') 
+    if(len(A)==3):
+        n_dimensions=2
+    elif(len(A)==4):
+        n_dimensions=3
+    else:
+        print 'Error, number of dimensions is neither 2 or 3'
+        return
+
+    Ey=A[0]
+    x=A[1]
+    y=A[2]
+
+    if(n_dimensions==3):
+        z=A[3]
+
+    centr_Ey=np.zeros(Ey.shape)
+    intensity=Ey*Ey
+    for i in range(x.shape[0]):
+        centr_Ey[i,:]=x[i]*Ey[i,:]*Ey[i,:]
+
+    centroid_position=float(centr_Ey.sum())/intensity.sum()
+
+    return centroid_position
+
+def temp_read_diagnostic(folder_name,diag_number):
     path=os.path.join(folder_name,'diagnostics','diag'+str(diag_number).zfill(2))
     file_read=open(path+'.dat','r')
 
@@ -19,15 +54,80 @@ def read_diagnostic(folder_name,diag_number):
     number_of_outputs=int(lines[19].split()[1])
     time=np.zeros(number_of_outputs)
     centroid=np.zeros(number_of_outputs)
-    ibeam=int(lines[1].split()[4])
+    ibeam=lines[1].split()[4]
     if(ibeam==0):
         offset=22+(number_of_outputs-1)/5+4+2*number_of_outputs+1+2+2*number_of_outputs+1+2
     if(ibeam==2):
-        offset=22+(number_of_outputs-1)/5+1+3+2*number_of_outputs+2
+        offset=22+(number_of_outputs-1)/5+1+3+2*number_of_outputs+2+1
     for i in range(number_of_outputs):
         time[i]=float(lines[22+i/5].split()[i%5])
-        centroid[i]=float(lines[offset+i].split()[1])
+        centroid[i]=float(lines[22+number_of_outputs/5+1+3+2*number_of_outputs+2+i].split()[1])
 
+    return (time,centroid)
+
+def read_diagnostic(folder_name,diag_number,*argv):
+    path=os.path.join(folder_name,'diagnostics','diag'+str(diag_number).zfill(2))
+    file_read=open(path+'.dat','r')
+    if(argv[0]=='centroid'):
+     variable_position=1
+    elif(argv[0]=='peak'):
+     variable_position=0
+    else:
+     print 'Keyword argument must be one between centroid and peak'
+     return
+    lines=file_read.readlines()
+    n_field=int(lines[1].split()[6])
+    if(lines[3].split()[0]=='T'):
+        Part=True
+    else:
+        Part=False
+    if(lines[3].split()[1]=='T'):
+        Beam=True
+    else:
+        Beam=False
+    if(lines[3].split()[2]=='T'):
+        Wake=True
+    else:
+        Wake=False
+    if(lines[3].split()[3]=='T'):
+        Solid_target=True
+    else:
+        Solid_target=False
+    if(not Wake):
+        print 'No Envelope data here'
+        return
+
+    number_of_outputs=int(lines[21].split()[1])
+    time=np.zeros(number_of_outputs)
+    centroid=np.zeros(number_of_outputs)
+    number_of_species=int(lines[19].split()[4])
+    ibeam=int(lines[1].split()[4])
+    offset=24
+    #if(ibeam==0 or ibeam==1):
+    #    offset=22+(number_of_outputs-1)/5+4+2*number_of_outputs+1+2+2*number_of_outputs+1+2
+    #if(ibeam==2):
+    #    offset=22+(number_of_outputs-1)/5+1+3+2*number_of_outputs+2
+    #print offset, number_of_outputs
+    for i in range(number_of_outputs):
+        time[i]=float(lines[offset+i/5].split()[i%5])
+        #centroid[i]=float(lines[offset+i].split()[variable_position])
+    offset=offset+(number_of_outputs-1)/5+1
+    if(Part):
+        offset=offset+1+(2*(1+number_of_outputs)+1)*number_of_species
+    if(n_field < 6):
+        offset=offset+1+1+number_of_outputs
+    else:
+        offset=offset+1+2*(1+number_of_outputs)
+    if(Beam):
+        offset=offset+1
+        if(n_field < 6):
+            offset=offset+1+number_of_outputs
+        else:
+            offset=offset+2*(1+number_of_outputs)
+    if(Wake):
+        offset=offset+1+1
+    for i in range(number_of_outputs):
+        centroid[i]=float(lines[offset+i].split()[variable_position])
     return (time,centroid)
 def get_path(directory):
     path=os.path.join(os.getcwd(),directory)
@@ -214,7 +314,7 @@ def get_a(path,a_field_number,grid_no_grid):
     Envelope=np.sqrt(a_real**2+a_im**2)
     return Envelope
 
-def convert_a_in_e(a_field_number,path):
+def convert_a_in_e(a_field_number,path,**kwargs):
 
     from scipy.interpolate import interp1d
     from scipy.signal import hilbert
@@ -234,7 +334,10 @@ def convert_a_in_e(a_field_number,path):
     e_field=np.zeros((nx,ny,nz))
 
     ndimension=int(integerparam['ndim'])
-
+    envelope_or_not=False
+    if('envelope' in kwargs):
+        if(kwargs['envelope']==True or kwargs['envelope']==False):
+            envelope_or_not=kwargs['envelope']
 
 
     if(ndimension==2):
@@ -264,20 +367,38 @@ def convert_a_in_e(a_field_number,path):
         a_diff=np.append(a_diff,[a_diff[-1,:,:]],axis=0)
 
     e_field=a_diff
-#   a_real_diff=np.diff(a_real,axis=0)/deltax
-#   a_im_diff=np.diff(a_im,axis=0)/deltax
-#   a_real_diff=np.append(a_real_diff,[a_real_diff[-1,:,:]],axis=0)
-#   a_im_diff=np.append(a_im_diff,[a_im_diff[-1,:,:]],axis=0)
+    if(envelope_or_not):
+        #a_real_diff=np.diff(a_real,axis=0)/deltax
+        #a_im_diff=np.diff(a_im,axis=0)/deltax
+        #if(ndimension==3):
+        #    a_real_diff=np.append(a_real_diff,[a_real_diff[-1,:,:]],axis=0)
+        #    a_im_diff=np.append(a_im_diff,[a_im_diff[-1,:,:]],axis=0)
 
-#   for k in range(nz):
-#       for j in range(ny):
-#           discrete_cos=np.zeros(nx)
-#           discrete_sin=np.zeros(nx)
-#           for i in range(nx):
-#               discrete_cos[i]=(speed_of_light*a_real_diff[i,j,k]+omega_0*a_im[i,j,k])*np.cos(k_0*x[i])
-#               discrete_sin[i]=-(speed_of_light*a_im_diff[i,j,k]+omega_0*a_real[i,j,k])*np.sin(k_0*x[i])
-#           envelope=np.abs(hilbert(discrete_cos+discrete_sin))
-#           e_field[:,j,k]=envelope
+        #if(ndimension==2):
+        #    a_real_diff=np.append(a_real_diff,[a_real_diff[-1,:]],axis=0)
+        #    a_im_diff=np.append(a_im_diff,[a_im_diff[-1,:]],axis=0)
+        
+        envelope=np.abs(hilbert(a_diff,axis=0))
+        e_field=envelope
+        #if(ndimension==3):
+        #    for k in range(nz):
+        #        for j in range(ny):
+        #            discrete_cos=np.zeros(nx)
+        #            discrete_sin=np.zeros(nx)
+        #            for i in range(nx):
+        #                 discrete_cos[i]=(speed_of_light*a_real_diff[i,j,k]+omega_0*a_im[i,j,k])*np.cos(k_0*x[i])
+        #                 discrete_sin[i]=-(speed_of_light*a_im_diff[i,j,k]+omega_0*a_real[i,j,k])*np.sin(k_0*x[i])
+        #    envelope=np.abs(hilbert(a_diff,axis=0))
+        #    e_field=envelope
+        #if(ndimension==2):
+        #    for j in range(ny):
+        #        discrete_cos=np.zeros(nx)
+        #        discrete_sin=np.zeros(nx)
+        #        for i in range(nx):
+        #            discrete_cos[i]=(speed_of_light*a_real_diff[i,j]+omega_0*a_im[i,j])*np.cos(k_0*x[i])
+        #            discrete_sin[i]=-(speed_of_light*a_im_diff[i,j]+omega_0*a_real[i,j])*np.sin(k_0*x[i])
+        #    envelope=np.abs(hilbert(discrete_cos+discrete_sin))
+        #    e_field[:,j]=envelope
     if(ndimension==2):
         return (e_field,x,y)
 
