@@ -714,3 +714,18 @@ def temporal_average(gamma,time,lambda_0,n):
     
     return gammaint,gammaroot_mean
     
+def integrate_electric_field(xarray,E_wakefield):
+
+    n_dimensions=E_wakefield.ndim
+    nx=E_wakefield.shape[0]
+    ny=E_wakefield.shape[1]
+    if(ndim==3):
+        nz=E_wakefield.shape[2]
+    deltax=xarray[2]-xarray[1]
+    E_wakefield_temp=np.flip(E_wakefield,axis=0)*deltax
+
+    pot=np.cumsum(E_wakefield_temp,axis=0)
+
+    pot=np.flip(pot,axis=0)
+
+    return pot
