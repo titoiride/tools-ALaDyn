@@ -840,7 +840,7 @@ def integrate_electric_field(xarray,E_wakefield):
     n_dimensions=E_wakefield.ndim
     nx=E_wakefield.shape[0]
     ny=E_wakefield.shape[1]
-    if(ndim==3):
+    if(n_dimensions==3):
         nz=E_wakefield.shape[2]
     deltax=xarray[2]-xarray[1]
     E_wakefield_temp=np.flip(E_wakefield,axis=0)*deltax
