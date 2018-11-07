@@ -707,6 +707,8 @@ def data(path,label,n_dimensions):
          rhoenv=[]
          global A
          A=[]
+         global a
+         a=[]
          global Bzenv
          Bzenv=[]
          global enerenv
@@ -762,9 +764,13 @@ def data(path,label,n_dimensions):
             if(os.isfile(os.join(i,'Aenvout'+i[-2:]+'.bin'))):
                 print 'Now reading Aenvout',i[-2:]
                 A.append(read_ALaDyn_bin(i,'Aenvout'+i[-2:],'nogrid'))
-            if(os.isfile(os.join(i,'Renvout'+i[-2:]+'.bin'))):
-                print 'Now reading Aenvout',i[-2:]
-                A.append(get_a(i,i[-2:],'nogrid'))
+            else:
+                if(os.isfile(os.join(i,'Renvout'+i[-2:]+'.bin'))):
+                    print 'Now reading the real and imaginary parts of A',i[-2:]
+                    A.append(get_a(i,i[-2:],'nogrid'))
+            if(os.isfile(os.join(i,'aenvout'+i[-2:]+'.bin'))):
+                print 'Now reading aenvout',i[-2:]
+                a.append(read_ALaDyn_bin(i,'aenvout'+i[-2:],'nogrid'))
             if(os.isfile(os.join(i,'Eyfout'+i[-2:]+'.bin'))):
                 print 'Now reading Eyfout',i[-2:]
                 Eyenv.append(read_ALaDyn_bin(i,'Eyfout'+i[-2:],'nogrid'))
