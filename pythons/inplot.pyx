@@ -856,3 +856,205 @@ def integrate_electric_field(xarray,E_wakefield):
     pot=np.flip(pot,axis=0)
 
     return pot
+
+def total_phase_space_read(path,file_name,n_dimensions):
+
+    if(n_dimensions==2):
+        x=read_particle_phasespace_bycomponent_2d(path,file_name,'X')
+        y=read_particle_phasespace_bycomponent_2d(path,file_name,'Y')
+        px=read_particle_phasespace_bycomponent_2d(path,file_name,'Px')
+        py=read_particle_phasespace_bycomponent_2d(path,file_name,'Py')
+        wgh=read_particle_phasespace_bycomponent_2d(path,file_name,'W')
+        
+        shape_array=x.shape[0]
+        x.shape=(1,shape_array)
+        y.shape=(1,shape_array)
+        px.shape=(1,shape_array)
+        py.shape=(1,shape_array)
+        wgh.shape=(1,shape_array)
+        phase_space=np.concatenate((x,y,px,py,wgh))
+        print 'The phase space array is (x, y, px, py, wgh)'
+
+    if(n_dimensions==3):
+        x=read_particle_phasespace_bycomponent(path,file_name,'X')
+        y=read_particle_phasespace_bycomponent(path,file_name,'Y')
+        z=read_particle_phasespace_bycomponent(path,file_name,'Z')
+        px=read_particle_phasespace_bycomponent(path,file_name,'Px')
+        py=read_particle_phasespace_bycomponent(path,file_name,'Py')
+        pz=read_particle_phasespace_bycomponent(path,file_name,'Pz')
+        wgh=read_particle_phasespace_bycomponent(path,file_name,'W')
+        
+        shape_array=x.shape[0]
+        x.shape=(1,shape_array)
+        y.shape=(1,shape_array)
+        z.shape=(1,shape_array)
+        px.shape=(1,shape_array)
+        py.shape=(1,shape_array)
+        pz.shape=(1,shape_array)
+        wgh.shape=(1,shape_array)
+
+        phase_space=np.concatenate((x,y,z,px,py,pz,wgh))
+        print 'The phase space array is (x, y, z, px, py, pz, wgh)'
+
+    return phase_space
+
+def bunch_analysis(phase_space,**kwargs):
+        
+    n_dimensions=(int(phase_space.shape[0])-1)/2
+
+    n_parts=int(phase_space.shape[1])
+        
+    index=np.full((n_parts),True)
+    all_particles=True
+
+    if(n_dimensions==2):
+
+        xp=phase_space[0][index]
+        yp=phase_space[1][index]
+        pxp=phase_space[2][index]
+        pyp=phase_space[3][index]
+        wgh=phase_space[4][index]
+        gamma_single_particle=np.sqrt(1+pxp**2+pyp**2)
+        
+    elif(n_dimensions==3):
+
+        xp=phase_space[0][index]
+        yp=phase_space[1][index]
+        zp=phase_space[2][index]
+        pxp=phase_space[3][index]
+        pyp=phase_space[4][index]
+        pzp=phase_space[5][index]
+        wgh=phase_space[6][index]
+        gamma_single_particle=np.sqrt(1+pxp**2+pyp**2+pzp**2)
+        
+    if('gamma_min' in kwargs):
+        gamma_min=kwargs['gamma_min']
+        all_particles=False
+    else:
+        gamma_min=np.amin(gamma_single_particle)
+
+    if('gamma_max' in kwargs):
+        gamma_max=kwargs['gamma_max']
+        all_particles=False
+    else:
+        gamma_max=np.amax(gamma_single_particle)
+
+    if('x_min' in kwargs):
+        x_min=kwargs['x_min']
+        all_particles=False
+    else:
+        x_min=np.amin(xp)
+
+    if('x_max' in kwargs):
+        x_max=kwargs['x_max']
+        all_particles=False
+    else:
+        x_max=np.amax(xp)
+
+    if('y_min' in kwargs):
+        y_min=kwargs['y_min']
+        all_particles=False
+    else:
+        y_min=np.amin(yp)
+
+    if('y_max' in kwargs):
+        y_max=kwargs['y_max']
+        all_particles=False
+    else:
+        y_max=np.max(yp)
+
+    if('z_min' in kwargs):
+        z_min=kwargs['z_min']
+        all_particles=False
+    else:
+        z_min=np.amin(zp)
+
+    if('z_max' in kwargs):
+        z_max=kwargs['z_max']
+        all_particles=False
+    else:
+        z_max=np.amax(zp)
+
+    if('weight_min' in kwargs):
+        weight_min=kwargs['weight_min']
+        all_particles=False
+    else:
+        weight_min=np.amin(wgh)
+
+    if('weight_max' in kwargs):
+        weight_max=kwargs['weight_max']
+        all_particles=False
+    else:
+        weight_max=np.amax(wgh)
+                
+    if(not all_particles):
+
+        if(n_dimensions==3):
+            for i in range(n_parts):
+                if(xp[i]>=x_min and xp[i]<=x_max):
+                    if(yp[i]>=y_min and yp[i]<=y_max):
+                        if(zp[i]>=z_min and zp[i]<=z_max):
+                            if(wgh[i]>=weight_min and wgh[i]<=weight_max):
+                                if(gamma[i]>=gamma_min and gamma[i]<=gamma_max):
+                                    pass
+                                else:
+                                    index[i]=False
+                            else:
+                                index[i]=False
+                        else:
+                            index[i]=False
+                    else:
+                        index[i]=False
+                else:
+                    index[i]=False
+        elif(n_dimensions==2):        
+            for i in range(n_parts):
+                if(xp[i]>=x_min and xp[i]<=x_max):
+                    if(yp[i]>=y_min and yp[i]<=y_max):
+                        if(wgh[i]>=weight_min and wgh[i]<=weight_max):
+                            if(gamma[i]>=gamma_min and gamma[i]<=gamma_max):
+                                pass
+                            else:
+                                index[i]=False
+                        else:
+                            index[i]=False
+                    else:
+                        index[i]=False
+                else:
+                    index[i]=False
+
+    weight_sum=np.sum(wgh)
+    x_ave=np.sum(wgh*xp)/weight_sum
+    y_ave=np.sum(wgh*yp)/weight_sum
+    px_ave=np.sum(wgh*pxp)/weight_sum
+    py_ave=np.sum(wgh*pyp)/weight_sum
+    x_square=np.sum(wgh*xp**2)/weight_sum
+    y_square=np.sum(wgh*yp**2)/weight_sum
+    px_square=np.sum(wgh*pxp**2)/weight_sum
+    py_square=np.sum(wgh*pyp**2)/weight_sum
+    
+    gamma_ave=np.sum(wgh*gamma_single_particle)/weight_sum
+    if(n_dimensions==3):
+    
+        z_ave=np.sum(wgh*zp)/weight_sum
+        z_square=np.sum(wgh*zp**2)/weight_sum
+        pz_ave=np.sum(wgh*pz)/weight_sum
+        pz_square=np.sum(wgh*pz**2)/weight_sum
+    
+    sigma_x=x_square-x_ave**2
+    sigma_y=y_square-y_ave**2
+    sigma_px=px_square-px_ave**2
+    sigma_py=py_square-py_ave**2
+    if(n_dimensions==3):
+        sigma_z=z_square-z_ave**2
+        sigma_pz=pz_square-pz_ave**2
+    y_py_corr=np.sum(wgh*(yp-y_ave)*(pyp-py_ave))/weight_sum
+    if(n_dimensions==3):
+        z_pz_corr=np.sum(wgh*(zp-z_ave)*(pzp-pz_ave))/weight_sum
+        
+    emittance_y=np.sqrt(y_square*py_square-y_py_corr**2)
+    print 'The normalized emittance along the first perpendicular axis is eps=',emittance_y,'mm mrad'
+    if(n_dimensions==3):
+    
+        emittance_z=np.sqrt(z_square*pz_square-z_pz_corr**2)
+        print 'The normalized emittance along the second perpendicular axis is eps=',emittance_z,'mm mrad'
