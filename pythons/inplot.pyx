@@ -900,6 +900,7 @@ def total_phase_space_read(path,file_name,n_dimensions):
 
 def bunch_analysis(phase_space,**kwargs):
         
+    print 'You can select gamma_min, gamma_max, x_min, x_max, y_min, y_max, z_min, z_max, weight_min, weight_max'
     n_dimensions=(int(phase_space.shape[0])-1)/2
 
     n_parts=int(phase_space.shape[1])
@@ -909,22 +910,22 @@ def bunch_analysis(phase_space,**kwargs):
 
     if(n_dimensions==2):
 
-        xp=phase_space[0][index]
-        yp=phase_space[1][index]
-        pxp=phase_space[2][index]
-        pyp=phase_space[3][index]
-        wgh=phase_space[4][index]
+        xp=phase_space[0]
+        yp=phase_space[1]
+        pxp=phase_space[2]
+        pyp=phase_space[3]
+        wgh=phase_space[4]
         gamma_single_particle=np.sqrt(1+pxp**2+pyp**2)
         
     elif(n_dimensions==3):
 
-        xp=phase_space[0][index]
-        yp=phase_space[1][index]
-        zp=phase_space[2][index]
-        pxp=phase_space[3][index]
-        pyp=phase_space[4][index]
-        pzp=phase_space[5][index]
-        wgh=phase_space[6][index]
+        xp=phase_space[0]
+        yp=phase_space[1]
+        zp=phase_space[2]
+        pxp=phase_space[3]
+        pyp=phase_space[4]
+        pzp=phase_space[5]
+        wgh=phase_space[6]
         gamma_single_particle=np.sqrt(1+pxp**2+pyp**2+pzp**2)
         
     if('gamma_min' in kwargs):
@@ -986,7 +987,7 @@ def bunch_analysis(phase_space,**kwargs):
         all_particles=False
     else:
         weight_max=np.amax(wgh)
-                
+           
     if(not all_particles):
 
         if(n_dimensions==3):
@@ -1023,6 +1024,20 @@ def bunch_analysis(phase_space,**kwargs):
                 else:
                     index[i]=False
 
+
+        xp=xp[index]
+        yp=yp[index]
+        pxp=pxp[index]
+        pyp=pyp[index]
+        wgh=wgh[index]
+        gamma_single_particle=gamma_single_particle[index]
+        
+        n_parts_selected=int(xp.shape[0])
+        if(n_dimensions==3):
+
+            zp=zp[index]
+            pzp=pzp[index]
+            
     weight_sum=np.sum(wgh)
     x_ave=np.sum(wgh*xp)/weight_sum
     y_ave=np.sum(wgh*yp)/weight_sum
@@ -1032,8 +1047,9 @@ def bunch_analysis(phase_space,**kwargs):
     y_square=np.sum(wgh*yp**2)/weight_sum
     px_square=np.sum(wgh*pxp**2)/weight_sum
     py_square=np.sum(wgh*pyp**2)/weight_sum
-    
+
     gamma_ave=np.sum(wgh*gamma_single_particle)/weight_sum
+    gamma_square=np.sum(wgh*gamma_single_particle**2)/weight_sum
     if(n_dimensions==3):
     
         z_ave=np.sum(wgh*zp)/weight_sum
@@ -1053,8 +1069,20 @@ def bunch_analysis(phase_space,**kwargs):
         z_pz_corr=np.sum(wgh*(zp-z_ave)*(pzp-pz_ave))/weight_sum
         
     emittance_y=np.sqrt(y_square*py_square-y_py_corr**2)
-    print 'The normalized emittance along the first perpendicular axis is eps=',emittance_y,'mm mrad'
-    if(n_dimensions==3):
     
+    energy_spread=np.sqrt(gamma_square)/gamma_ave
+    print 'The initial number of particles was',n_parts
+    print n_parts_selected,'particles have been selected'
+    print 'The sum on the weights of all the selected particles is wgh_sum=', weight_sum
+    if(n_dimensions==2):
+        print 'If you want to compute the charge, assuming a laser waist w_0'
+        print 'Ch=e*n0*dz*dx*w0*wgh_sum*pi/2'
+        print 'The normalized emittance along the first perpendicular axis is eps=',emittance_y,'mm mrad'
+    if(n_dimensions==3):
+        print 'If you want to compute the charge'
+        print 'Ch=e*n_0*dx*dy*dz*wgh_sum'
         emittance_z=np.sqrt(z_square*pz_square-z_pz_corr**2)
+        print 'The normalized emittance along the first perpendicular axis is eps=',emittance_y,'mm mrad'
         print 'The normalized emittance along the second perpendicular axis is eps=',emittance_z,'mm mrad'
+    
+    print 'The bunch energy spread is rms(E)/mean(E)=',energy_spread*100,'%'
