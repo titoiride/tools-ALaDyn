@@ -966,13 +966,13 @@ def bunch_analysis(phase_space,**kwargs):
     if('z_min' in kwargs):
         z_min=kwargs['z_min']
         all_particles=False
-    else:
+    elif(n_dimensions==3):
         z_min=np.amin(zp)
 
     if('z_max' in kwargs):
         z_max=kwargs['z_max']
         all_particles=False
-    else:
+    elif(n_dimensions==3):
         z_max=np.amax(zp)
 
     if('weight_min' in kwargs):
@@ -995,7 +995,7 @@ def bunch_analysis(phase_space,**kwargs):
                     if(yp[i]>=y_min and yp[i]<=y_max):
                         if(zp[i]>=z_min and zp[i]<=z_max):
                             if(wgh[i]>=weight_min and wgh[i]<=weight_max):
-                                if(gamma[i]>=gamma_min and gamma[i]<=gamma_max):
+                                if(gamma_single_particle[i]>=gamma_min and gamma_single_particle[i]<=gamma_max):
                                     pass
                                 else:
                                     index[i]=False
@@ -1012,7 +1012,7 @@ def bunch_analysis(phase_space,**kwargs):
                 if(xp[i]>=x_min and xp[i]<=x_max):
                     if(yp[i]>=y_min and yp[i]<=y_max):
                         if(wgh[i]>=weight_min and wgh[i]<=weight_max):
-                            if(gamma[i]>=gamma_min and gamma[i]<=gamma_max):
+                            if(gamma_single_particle[i]>=gamma_min and gamma_single_particle[i]<=gamma_max):
                                 pass
                             else:
                                 index[i]=False
