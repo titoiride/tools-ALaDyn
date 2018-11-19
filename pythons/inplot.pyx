@@ -1004,6 +1004,7 @@ def bunch_analysis(phase_space,**kwargs):
     sigma_y=y_square-y_ave**2
     sigma_px=px_square-px_ave**2
     sigma_py=py_square-py_ave**2
+    sigma_gamma=gamma_square-gamma_ave**2
     if(n_dimensions==3):
         sigma_z=z_square-z_ave**2
         sigma_pz=pz_square-pz_ave**2
@@ -1013,7 +1014,7 @@ def bunch_analysis(phase_space,**kwargs):
         
     emittance_y=np.sqrt(y_square*py_square-y_py_corr**2)
     
-    energy_spread=np.sqrt(gamma_square)/gamma_ave
+    energy_spread=np.sqrt(sigma_gamma)/gamma_ave
 
     print 'The sum on the weights of all the selected particles is wgh_sum=', weight_sum
     if(n_dimensions==2):
@@ -1027,7 +1028,7 @@ def bunch_analysis(phase_space,**kwargs):
         print 'The normalized emittance along the first perpendicular axis is eps=',emittance_y,'mm mrad'
         print 'The normalized emittance along the second perpendicular axis is eps=',emittance_z,'mm mrad'
     
-    print 'The mean energy is \gamma=',m_e*gamma_ave,'MeV'
+    print 'The mean energy is E=',m_e*gamma_ave,'MeV'
     print 'The bunch energy spread is rms(E)/mean(E)=',energy_spread*100,'%'
 
 def select_particles(phase_space,**kwargs):
