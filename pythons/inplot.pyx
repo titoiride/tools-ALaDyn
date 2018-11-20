@@ -70,10 +70,13 @@ def read_diagnostic(folder_name,diag_number,*argv):
     file_read=open(path+'.dat','r')
     if(argv[0]=='centroid'):
      variable_position=1
-    elif(argv[0]=='peak'):
+    elif(argv[0]=='peak_a0'or argv[0]=='peak_a1'):
      variable_position=0
     else:
-     print 'Keyword argument must be one between centroid and peak'
+     print 'Keyword argument must be'
+     print 'centroid'
+     print 'peak_a0'
+     print 'peak_a1'
      return
     lines=file_read.readlines()
     n_field=int(lines[1].split()[6])
@@ -96,6 +99,10 @@ def read_diagnostic(folder_name,diag_number,*argv):
     if(not Wake):
         print 'No Envelope data here'
         return
+    if(int(lines[1].split()[6])==1):
+        Two_colors=True
+    else:
+        Two_colors=False
 
     number_of_outputs=int(lines[21].split()[1])
     time=np.zeros(number_of_outputs)
@@ -126,6 +133,10 @@ def read_diagnostic(folder_name,diag_number,*argv):
             offset=offset+2*(1+number_of_outputs)
     if(Wake):
         offset=offset+1+1
+    if(not Two_colors and argv[0]=='peak_a1'):
+        print 'Warning you requested peak_a1 but there is no a_1 pulse'
+    if(Two_colors and argv[0]=='peak_a1'):
+        offset=offset+number_of_outputs+2
     for i in range(number_of_outputs):
         centroid[i]=float(lines[offset+i].split()[variable_position])
     return (time,centroid)
