@@ -50,6 +50,7 @@ Desktop.ini
 # Cythons
 
 inplot.c
+read_field.c
 
 # QtCreator
 *.autosave

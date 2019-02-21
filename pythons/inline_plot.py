@@ -402,6 +402,7 @@ def track_data(dir_path,file_number):
     file_bin=open(path+'.bin','rb')
 
     if(phasespace_dimensions==5):
+        struct.unpack('i',file_bin.read(4))
         while True:
             try:
                 vars=struct.unpack(jump*'f', file_bin.read(8*jump))
