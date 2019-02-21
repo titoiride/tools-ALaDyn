@@ -8,6 +8,7 @@ import numpy as np
 import scipy.interpolate as interp
 from scipy import integrate
 import array
+from read_field import read_ALaDyn_bin
 
 def compute_centroid(dir_path):
     
