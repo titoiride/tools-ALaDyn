@@ -405,7 +405,7 @@ def track_data(dir_path,file_number):
         struct.unpack('i',file_bin.read(4))
         while True:
             try:
-                vars=struct.unpack(jump*'f', file_bin.read(8*jump))
+                vars=struct.unpack(jump*'d', file_bin.read(8*jump))
             except struct.error:
                 break
             for j in range(0,number_timesteps):
