@@ -922,6 +922,8 @@ def bunch_analysis(phase_space,**kwargs):
     y_ave=np.sum(wgh*yp)/weight_sum
     px_ave=np.sum(wgh*pxp)/weight_sum
     py_ave=np.sum(wgh*pyp)/weight_sum
+    y_diff=yp-y_ave
+    py_diff=pyp-py_ave
     x_square=np.sum(wgh*xp**2)/weight_sum
     y_square=np.sum(wgh*yp**2)/weight_sum
     px_square=np.sum(wgh*pxp**2)/weight_sum
@@ -933,7 +935,9 @@ def bunch_analysis(phase_space,**kwargs):
     
         z_ave=np.sum(wgh*zp)/weight_sum
         z_square=np.sum(wgh*zp**2)/weight_sum
+        z_diff=zp-z_ave
         pz_ave=np.sum(wgh*pzp)/weight_sum
+        pz_diff=pzp-pz_ave
         pz_square=np.sum(wgh*pzp**2)/weight_sum
     
     sigma_x=x_square-x_ave**2
@@ -944,11 +948,11 @@ def bunch_analysis(phase_space,**kwargs):
     if(n_dimensions==3):
         sigma_z=z_square-z_ave**2
         sigma_pz=pz_square-pz_ave**2
-    y_py_corr=np.sum(wgh*(yp-y_ave)*(pyp-py_ave))/weight_sum
+    y_py_corr=np.sum(wgh*y_diff*py_diff)/weight_sum
     if(n_dimensions==3):
-        z_pz_corr=np.sum(wgh*(zp-z_ave)*(pzp-pz_ave))/weight_sum
+        z_pz_corr=np.sum(wgh*z_diff*pz_diff)/weight_sum
         
-    emittance_y=np.sqrt(y_square*py_square-y_py_corr**2)
+    emittance_y=np.sqrt(sigma_y*sigma_py-y_py_corr**2)
     
     energy_spread=np.sqrt(sigma_gamma)/gamma_ave
 
@@ -959,13 +963,27 @@ def bunch_analysis(phase_space,**kwargs):
         print 'The normalized emittance along the first perpendicular axis is eps=',emittance_y,'mm mrad'
     if(n_dimensions==3):
         print 'If you want to compute the charge'
-        print 'Ch=e*n_0*dx*dy*dz*wgh_sum'
-        emittance_z=np.sqrt(z_square*pz_square-z_pz_corr**2)
+        print 'Ch=e*n0*dx*dy*dz*wgh_sum'
+        emittance_z=np.sqrt(sigma_z*sigma_pz-z_pz_corr**2)
         print 'The normalized emittance along the first perpendicular axis is eps=',emittance_y,'mm mrad'
         print 'The normalized emittance along the second perpendicular axis is eps=',emittance_z,'mm mrad'
     
     print 'The mean energy is E=',m_e*gamma_ave,'MeV'
     print 'The bunch energy spread is rms(E)/mean(E)=',energy_spread*100,'%'
+    if(n_dimensions==3):
+        print '<z>=', x_ave, '<x>=', y_ave, '<y>=', z_ave
+        print '<(z-<z>)^2>=', sigma_x, '<(x-<x>)^2>=', sigma_y, '<(y-<y>)^2>=', sigma_z
+        print '<pz>=', px_ave, '<px>=', py_ave, '<py>=', pz_ave
+        print '<(pz-<pz>)^2>=', np.sqrt(sigma_px), '<(px-<px>)^2>=', np.sqrt(sigma_py), '<(py-<py>)^2>=', np.sqrt(sigma_pz)
+
+    if(n_dimensions==2):
+        print '<z>=', x_ave, '<x>=', y_ave
+        print '<(z-<z>)^2>=', sigma_x, '<(x-<x>)^2>=', sigma_y
+        print '<pz>=', px_ave, '<px>=', py_ave
+        print '<(pz-<pz>)^2>=', np.sqrt(sigma_px), '<(px-<px>)^2>=', np.sqrt(sigma_py)
+
+
+
 
 def select_particles(phase_space,**kwargs):
 

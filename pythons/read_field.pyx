@@ -67,7 +67,7 @@ def read_ALaDyn_bin(dir_path,file_name,grid_no_grid):
 
     r=np.flip(r,1)
     if(ndimension==3):
-        r=np.flip(r,3)
+        r=np.flip(r,2)
 
     if grid_no_grid == 'nogrid':
         return r
